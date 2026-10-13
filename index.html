@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f2f2f7">
+<title>恋爱载入中... · k1ty</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f2f2f7;
+    --card: #ffffff;
+    --text: #1c1c1e;
+    --text2: #8e8e93;
+    --text3: #c7c7cc;
+    --line: #e5e5ea;
+    --pink: #f2a6c2;
+    --pink-deep: #e07aa5;
+    --pink-pale: #fff5fa;
+    --blue: #3b82f6;
+    --blue-pale: #e8f2ff;
+    --radius: 14px;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    background: #cfcfd6;
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                 "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .app {
+    width: min(100%, 420px);
+    height: min(100vh, 880px);
+    background: var(--bg);
+    border-radius: 28px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 24px 70px rgba(0,0,0,0.22);
+  }
+
+  /* ============ 顶栏 ============ */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px 8px;
+    flex: 0 0 auto;
+    z-index: 5;
+    background: var(--bg);
+  }
+
+  .topbar-close {
+    width: 30px; height: 30px;
+    display: grid; place-items: center;
+    border: none; background: transparent;
+    color: var(--text2); font-size: 18px;
+    cursor: pointer; border-radius: 50%;
+    transition: background 0.15s;
+  }
+  .topbar-close:active { background: rgba(0,0,0,0.06); }
+
+  .topbar-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .topbar-page {
+    font-size: 13px;
+    color: var(--text2);
+    min-width: 30px;
+    text-align: right;
+  }
+
+  /* ============ 页面容器 ============ */
+  .viewport {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 4px 0 16px;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  .viewport::-webkit-scrollbar { width: 0; }
+
+  .page {
+    display: none;
+    padding: 2px 0 12px;
+    animation: pageIn 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .page.active { display: block; }
+
+  @keyframes pageIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ============ 通用卡片 ============ */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    margin: 0 14px 12px;
+    overflow: hidden;
+  }
+
+  .section-title {
+    padding: 16px 20px 7px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text2);
+    letter-spacing: 0.03em;
+  }
+
+  /* ============ 可编辑 ============ */
+  .editable {
+    outline: none;
+    min-height: 26px;
+    padding: 13px 16px;
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--text);
+    border-radius: 8px;
+    transition: background 0.15s;
+  }
+  .editable:focus { background: var(--pink-pale); }
+  .editable:empty::before {
+    content: attr(data-placeholder);
+    color: var(--text3);
+  }
+
+  /* ============ 主页 Profile ============ */
+  .profile-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 22px 18px;
+    margin-top: 4px;
+  }
+
+  .avatar {
+    flex: 0 0 72px;
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #fafafa 0%, #ececf0 100%);
+    display: grid; place-items: center;
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .avatar svg { width: 58px; height: 58px; display: block; }
+
+  .profile-info { flex: 1; min-width: 0; }
+
+  .profile-name {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    color: var(--text);
+  }
+
+  .profile-sub {
+    font-size: 13px;
+    color: var(--text2);
+    margin-top: 3px;
+    line-height: 1.45;
+  }
+
+  .profile-arrow {
+    flex: 0 0 auto;
+    color: var(--text3);
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  /* ============ 信息行 ============ */
+  .info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .info-row:last-child { border-bottom: none; }
+
+  .info-label {
+    font-size: 14px;
+    color: var(--text2);
+    flex: 0 0 auto;
+  }
+
+  .info-value {
+    font-size: 14px;
+    color: var(--text);
+    text-align: right;
+    font-weight: 500;
+  }
+
+  /* ============ 状态环 ============ */
+  .ring-wrap {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 20px 18px;
+  }
+
+  .ring {
+    position: relative;
+    flex: 0 0 78px;
+    width: 78px; height: 78px;
+    border-radius: 50%;
+    background: conic-gradient(var(--pink) 0 75%, #ececf0 75% 100%);
+  }
+
+  .ring::after {
+    content: "75%";
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--card);
+    display: grid; place-items: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--pink-deep);
+  }
+
+  .ring-text { flex: 1; }
+
+  .ring-text strong {
+    display: block;
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .ring-text span {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  /* ============ 快捷按钮 ============ */
+  .chip-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .chip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 13px 8px;
+    border-radius: 12px;
+    background: #f7f7fa;
+    border: 1px solid var(--line);
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .chip:active {
+    background: var(--pink-pale);
+    border-color: var(--pink);
+    transform: scale(0.97);
+  }
+  .chip-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--pink);
+  }
+
+  /* ============ Plan List ============ */
+  .plan-head {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 16px 16px 8px;
+  }
+
+  .plan-head-icon {
+    width: 26px; height: 26px;
+    border-radius: 8px;
+    background: var(--pink-pale);
+    display: grid; place-items: center;
+    font-size: 13px;
+    color: var(--pink-deep);
+  }
+
+  .plan-head-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .plan-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    cursor: pointer;
+    user-select: none;
+    border-top: 1px solid var(--line);
+  }
+
+  .plan-check {
+    flex: 0 0 19px;
+    width: 19px; height: 19px;
+    border-radius: 50%;
+    border: 1.5px solid var(--text3);
+    display: grid; place-items: center;
+    font-size: 11px;
+    color: transparent;
+    transition: all 0.18s;
+  }
+
+  .plan-item.done .plan-check {
+    background: var(--pink);
+    border-color: var(--pink);
+    color: #fff;
+  }
+
+  .plan-text {
+    font-size: 14px;
+    color: var(--text);
+    flex: 1;
+    outline: none;
+    transition: color 0.18s;
+  }
+
+  .plan-item.done .plan-text {
+    color: var(--text3);
+    text-decoration: line-through;
+  }
+
+  /* ============ 音乐卡 ============ */
+  .music-card {
+    background: linear-gradient(140deg, #ffd3e7 0%, #f2a6c2 55%, #e07aa5 100%);
+    color: #fff;
+    padding: 20px 18px;
+    margin: 4px 14px 12px;
+    border-radius: var(--radius);
+    position: relative;
+    overflow: hidden;
+  }
+  .music-card::after {
+    content: "";
+    position: absolute;
+    top: -40px; right: -30px;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+  }
+
+  .music-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .record {
+    flex: 0 0 54px;
+    width: 54px; height: 54px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.22);
+    border: 2px solid rgba(255,255,255,0.5);
+    display: grid; place-items: center;
+    font-size: 22px;
+    animation: spin 8s linear infinite;
+    animation-play-state: paused;
+  }
+  .record.playing { animation-play-state: running; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .music-meta { flex: 1; min-width: 0; }
+
+  .music-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.2px;
+    outline: none;
+  }
+
+  .music-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.88);
+    margin-top: 3px;
+  }
+
+  .music-bar {
+    margin-top: 16px;
+    height: 3px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.3);
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+  }
+
+  .music-bar-fill {
+    width: 0%;
+    height: 100%;
+    background: #fff;
+    border-radius: 2px;
+  }
+
+  .music-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    margin-top: 14px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .m-btn {
+    border: none;
+    background: transparent;
+    color: #fff;
+    font-size: 19px;
+    cursor: pointer;
+    padding: 4px;
+    opacity: 0.9;
+    transition: opacity 0.15s, transform 0.1s;
+    line-height: 1;
+  }
+  .m-btn:active { transform: scale(0.9); opacity: 1; }
+
+  .m-btn-play {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.28);
+    display: grid; place-items: center;
+    font-size: 15px;
+  }
+
+  .music-upload {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 8px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    font-size: 12px;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    border: 1px dashed rgba(255,255,255,0.5);
+  }
+  .music-upload:active { background: rgba(255,255,255,0.28); }
+
+  /* ============ iMessage 消息 ============ */
+  .imessage-wrap {
+    background: #fff;
+    border-radius: var(--radius);
+    margin: 4px 14px 12px;
+    padding: 4px 0 12px;
+    overflow: hidden;
+  }
+
+  .imessage-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .imessage-header-avatar {
+    flex: 0 0 34px;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #fafafa, #ececf0);
+    display: grid; place-items: center;
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .imessage-header-avatar svg { width: 26px; height: 26px; }
+
+  .imessage-header-info { flex: 1; }
+
+  .imessage-header-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .imessage-header-status {
+    font-size: 11px;
+    color: var(--text2);
+    margin-top: 1px;
+  }
+
+  .imessage-body {
+    padding: 14px 12px 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .bubble-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    max-width: 100%;
+  }
+
+  .bubble-row.out { justify-content: flex-end; }
+  .bubble-row.in { justify-content: flex-start; }
+
+  .bubble {
+    max-width: 76%;
+    padding: 9px 13px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.5;
+    outline: none;
+    word-break: break-word;
+    position: relative;
+    transition: box-shadow 0.15s;
+  }
+
+  .bubble:focus {
+    box-shadow: 0 0 0 2px var(--pink-deep);
+  }
+
+  .bubble.in {
+    background: #e9e9eb;
+    color: var(--text);
+    border-bottom-left-radius: 4px;
+  }
+
+  .bubble.out {
+    background: linear-gradient(135deg, #f2a6c2 0%, #e07aa5 100%);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+
+  .bubble.out:empty::before,
+  .bubble.in:empty::before {
+    content: attr(data-placeholder);
+    opacity: 0.6;
+  }
+
+  .bubble-time {
+    font-size: 10px;
+    color: var(--text2);
+    margin-top: 4px;
+    text-align: center;
+    padding: 0 4px;
+  }
+
+  .bubble-label {
+    font-size: 10px;
+    color: var(--text2);
+    margin-bottom: 3px;
+    padding: 0 4px;
+  }
+
+  .bubble-row.out .bubble-label { text-align: right; }
+
+  /* ============ 朋友圈 ============ */
+  .moments-wrap {
+    background: #fff;
+    border-radius: var(--radius);
+    margin: 4px 14px 12px;
+    overflow: hidden;
+  }
+
+  .moments-header {
+    position: relative;
+    height: 130px;
+    background: linear-gradient(135deg, #ffd3e7 0%, #f2a6c2 50%, #e07aa5 100%);
+    display: flex;
+    align-items: flex-end;
+    padding: 12px 16px;
+  }
+
+  .moments-header::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(255,255,255,0.25) 0 40px, transparent 41px),
+      radial-gradient(circle at 70% 60%, rgba(255,255,255,0.18) 0 60px, transparent 61px);
+    pointer-events: none;
+  }
+
+  .moments-me {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: -24px;
+  }
+
+  .moments-me-avatar {
+    flex: 0 0 56px;
+    width: 56px; height: 56px;
+    border-radius: 8px;
+    background: #fff;
+    display: grid; place-items: center;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+  }
+  .moments-me-avatar svg { width: 42px; height: 42px; }
+
+  .moments-me-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+
+  .moments-body {
+    padding: 34px 16px 16px;
+  }
+
+  .moment-item {
+    display: flex;
+    gap: 10px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .moment-item:last-child { border-bottom: none; }
+
+  .moment-avatar {
+    flex: 0 0 40px;
+    width: 40px; height: 40px;
+    border-radius: 6px;
+    background: #f7f7fa;
+    display: grid; place-items: center;
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .moment-avatar svg { width: 30px; height: 30px; }
+
+  .moment-main { flex: 1; min-width: 0; }
+
+  .moment-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    outline: none;
+  }
+
+  .moment-text {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.65;
+    margin-top: 4px;
+    outline: none;
+    padding: 2px 4px;
+    margin-left: -4px;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+  .moment-text:focus { background: var(--pink-pale); }
+
+  .moment-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--text2);
+  }
+
+  .moment-actions {
+    display: flex;
+    gap: 14px;
+  }
+
+  .moment-action {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    color: var(--text2);
+    font-size: 11px;
+    transition: color 0.15s;
+  }
+  .moment-action.liked { color: var(--pink-deep); }
+  .moment-action:active { opacity: 0.6; }
+
+  .moment-comments {
+    margin-top: 8px;
+    padding: 8px 10px;
+    background: #f7f7fa;
+    border-radius: 8px;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  .moment-comment-row {
+    display: flex;
+    gap: 4px;
+  }
+
+  .moment-comment-name {
+    color: var(--blue);
+    font-weight: 500;
+    flex: 0 0 auto;
+  }
+
+  .moment-comment-text {
+    outline: none;
+    flex: 1;
+    border-radius: 4px;
+    padding: 0 2px;
+  }
+  .moment-comment-text:focus { background: #fff; }
+
+  /* ============ 底部导航 ============ */
+  .tabbar {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 6px 0 calc(6px + var(--safe-bottom));
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--line);
+  }
+
+  .tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    border: none;
+    background: transparent;
+    color: var(--text2);
+    font-size: 10px;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 4px 0;
+    position: relative;
+    transition: color 0.2s;
+  }
+
+  .tab svg {
+    width: 24px; height: 24px;
+    stroke-width: 1.8;
+    transition: transform 0.2s;
+  }
+
+  .tab.active { color: var(--pink-deep); }
+  .tab.active svg { transform: translateY(-1px); }
+
+  .tab-label {
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    font-weight: 500;
+  }
+
+  .tab-badge {
+    position: absolute;
+    top: 2px;
+    right: calc(50% - 18px);
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #ff3b30;
+    border: 1.5px solid #fff;
+  }
+
+  /* ============ 编辑提示 ============ */
+  .edit-hint {
+    margin: 0 14px 12px;
+    padding: 9px 14px;
+    border-radius: 10px;
+    background: var(--pink-pale);
+    color: var(--pink-deep);
+    font-size: 11.5px;
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  /* ============ 移动端全屏 ============ */
+  @media (max-width: 480px) {
+    body { display: block; background: var(--bg); }
+    .app {
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      border-radius: 0;
+      box-shadow: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- 顶栏 -->
+  <header class="topbar">
+    <button class="topbar-close" id="closeBtn" aria-label="回到主页">✕</button>
+    <span class="topbar-title" id="pageTitle">主页</span>
+    <span class="topbar-page"><span id="curPage">1</span>/4</span>
+  </header>
+
+  <!-- 页面容器 -->
+  <main class="viewport" id="viewport">
+
+    <!-- ==================== 第 1 页：主页 ==================== -->
+    <section class="page active" data-page="0" data-title="主页">
+
+      <div class="card profile-card">
+        <div class="avatar" aria-hidden="true">
+          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="15,22 21,7 30,19" fill="#4a4a4a"/>
+            <polygon points="49,22 43,7 34,19" fill="#4a4a4a"/>
+            <circle cx="32" cy="33" r="17" fill="#5c5c5c"/>
+            <circle cx="25.5" cy="31" r="3.2" fill="#1c1c1e"/>
+            <circle cx="38.5" cy="31" r="3.2" fill="#1c1c1e"/>
+            <circle cx="26.5" cy="30" r="1" fill="#fff"/>
+            <circle cx="39.5" cy="30" r="1" fill="#fff"/>
+            <polygon points="32,37 29.8,39.2 34.2,39.2" fill="#f2a6c2"/>
+            <ellipse cx="32" cy="54" rx="14" ry="7" fill="#5c5c5c"/>
+            <ellipse cx="32" cy="42" rx="9" ry="5" fill="#6e6e6e"/>
+          </svg>
+        </div>
+        <div class="profile-info">
+          <div class="profile-name">k1ty</div>
+          <div class="profile-sub">Vivienne Pistols<br>Sevenstars</div>
+        </div>
+        <span class="profile-arrow" aria-hidden="true">›</span>
+      </div>
+
+      <div class="section-title">自我介绍</div>
+      <div class="card">
+        <div class="editable" contenteditable="true" data-placeholder="点击编辑自我介绍...">约会装扮：耳坠正太<br>爱好：爱美<br>21 · 双子 · 八无 · LEENFP<br><br>喜欢甜甜恋爱的普通人，不喜剖析，也不喜欢被剖析。</div>
+      </div>
+
+      <div class="section-title">关系状态</div>
+      <div class="card">
+        <div class="ring-wrap">
+          <div class="ring" aria-hidden="true"></div>
+          <div class="ring-text">
+            <strong>我们什么关系？蜜雪冰城吧</strong>
+            <span>520.1314_好 · 期待见面</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">快捷入口</div>
+      <div class="card">
+        <div class="chip-grid">
+          <button class="chip" type="button"><span class="chip-dot"></span>话术</button>
+          <button class="chip" type="button"><span class="chip-dot"></span>板课</button>
+          <button class="chip" type="button"><span class="chip-dot"></span>主类</button>
+          <button class="chip" type="button"><span class="chip-dot"></span>接班表</button>
+        </div>
+      </div>
+
+      <div class="edit-hint">✎ 点击虚线区域即可编辑文字</div>
+    </section>
+
+    <!-- ==================== 第 2 页：提醒事项 ==================== -->
+    <section class="page" data-page="1" data-title="提醒事项">
+
+      <div class="section-title">Plan List</div>
+      <div class="card">
+        <div class="plan-head">
+          <span class="plan-head-icon">♡</span>
+          <span class="plan-head-title">Plan List</span>
+        </div>
+        <div class="plan-item" data-plan>
+          <span class="plan-check">✓</span>
+          <span class="plan-text" contenteditable="true">Drink water</span>
+        </div>
+        <div class="plan-item" data-plan>
+          <span class="plan-check">✓</span>
+          <span class="plan-text" contenteditable="true">Read a book</span>
+        </div>
+        <div class="plan-item" data-plan>
+          <span class="plan-check">✓</span>
+          <span class="plan-text" contenteditable="true">Early to bed</span>
+        </div>
+        <div class="plan-item" data-plan>
+          <span class="plan-check">✓</span>
+          <span class="plan-text" contenteditable="true" data-placeholder="点击编辑...">自己编辑一条...</span>
+        </div>
+      </div>
+
+      <div class="section-title">Now Playing</div>
+      <div class="music-card">
+        <div class="music-top">
+          <div class="record" id="record" aria-hidden="true">♪</div>
+          <div class="music-meta">
+            <div class="music-title" id="musicTitle" contenteditable="true">Cherry Wine</div>
+            <div class="music-sub" id="musicSub">1+520:1314 · 已暂停</div>
+          </div>
+        </div>
+        <div class="music-bar">
+          <div class="music-bar-fill" id="musicFill"></div>
+        </div>
+        <div class="music-controls">
+          <button class="m-btn" aria-label="上一首">⏮</button>
+          <button class="m-btn m-btn-play" id="playBtn" aria-label="播放">▶</button>
+          <button class="m-btn" aria-label="下一首">⏭</button>
+        </div>
+        <label class="music-upload" for="musicFile">
+          ♪ 点击上传本地音乐
+        </label>
+        <input type="file" id="musicFile" accept="audio/*" hidden>
+      </div>
+
+      <div class="section-title">默认总人关系</div>
+      <div class="card">
+        <div class="editable" contenteditable="true" data-placeholder="点击编辑提醒内容...">婉拒男板 / 低态板 / 萌新板 / 低代入 / 单口半单口 / 不配合<br>婉拒一恋多 / 旁现搭话 / 审视 / 熟人披马甲（别被我认出来）<br>习惯回合制对话，偶尔可以，次数多了我会叫停退单<br>严拒单内恶搞、接恶俗烂梗，接到永拒 + 避雷条<br>别莫名对我有太大期待 / 幻想，我只是一个喜欢甜甜恋爱的普通人<br>不喜剖析我，你也不要剖析我<br>单内不看微信，有什么话直接单内说就可以<br>不喜小窝，婉拒小窝（太社恐了，更喜欢二人世界）<br>单后正常演好友<br>期待见面</div>
+      </div>
+
+      <div class="edit-hint">✎ 点击勾选完成计划 · 音乐支持上传本地文件</div>
+    </section>
+
+    <!-- ==================== 第 3 页：消息 ==================== -->
+    <section class="page" data-page="2" data-title="消息">
+
+      <div class="imessage-wrap">
+        <div class="imessage-header">
+          <div class="imessage-header-avatar" aria-hidden="true">
+            <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+              <polygon points="15,22 21,7 30,19" fill="#4a4a4a"/>
+              <polygon points="49,22 43,7 34,19" fill="#4a4a4a"/>
+              <circle cx="32" cy="33" r="17" fill="#5c5c5c"/>
+              <circle cx="25.5" cy="31" r="3.2" fill="#1c1c1e"/>
+              <circle cx="38.5" cy="31" r="3.2" fill="#1c1c1e"/>
+              <circle cx="26.5" cy="30" r="1" fill="#fff"/>
+              <circle cx="39.5" cy="30" r="1" fill="#fff"/>
+              <ellipse cx="32" cy="54" rx="14" ry="7" fill="#5c5c5c"/>
+            </svg>
+          </div>
+          <div class="imessage-header-info">
+            <div class="imessage-header-name">新邮件提醒</div>
+            <div class="imessage-header-status">You got a new message</div>
+          </div>
+          <span class="mail-badge" style="flex:0 0 auto; min-width:20px; height:20px; padding:0 6px; border-radius:10px; background:#ff3b30; color:#fff; font-size:11px; font-weight:600; display:grid; place-items:center;">1</span>
+        </div>
+
+        <div class="imessage-body">
+          <div class="bubble-time">今天 14:43</div>
+
+          <!-- 发信人（我）：固定内容，可编辑 -->
+          <div class="bubble-row out">
+            <div class="bubble out" contenteditable="true" data-placeholder="说点什么...">我想多了解一点</div>
+          </div>
+
+          <!-- 收信人：悄悄话 / 语录，可编辑 -->
+          <div class="bubble-row in">
+            <div class="bubble in" contenteditable="true" data-placeholder="点击编辑悄悄话...">再过来点，我唱给你听。</div>
+          </div>
+
+          <div class="bubble-row in">
+            <div class="bubble in" contenteditable="true" data-placeholder="点击编辑悄悄话...">编你的，只想亲你。</div>
+          </div>
+
+          <div class="bubble-row in">
+            <div class="bubble in" contenteditable="true" data-placeholder="点击编辑语录...">此女最喜欢随单麦尾音上扬时我们靠得更近了，心也是</div>
+          </div>
+
+          <div class="bubble-row in">
+            <div class="bubble in" contenteditable="true" data-placeholder="点击编辑语录...">邪恶要坏句引第一步：这位女士不好意思说话就先牵紧我吧</div>
+          </div>
+
+          <div class="bubble-row in">
+            <div class="bubble in" contenteditable="true" data-placeholder="点击编辑语录...">真没找借口，借口不是</div>
+          </div>
+
+          <div class="bubble-row in">
+            <div class="bubble in" contenteditable="true" data-placeholder="点击编辑语录...">把你借我亲一口吗</div>
+          </div>
+
+          <div class="bubble-row in">
+            <div class="bubble in" contenteditable="true" data-placeholder="点击编辑语录...">Heaven has blessed me with a wonderful, wonderful you</div>
+          </div>
+
+          <!-- 发信人再来一条 -->
+          <div class="bubble-row out">
+            <div class="bubble out" contenteditable="true" data-placeholder="回复...">那再靠近一点</div>
+          </div>
+
+          <div class="bubble-time">已读 · 刚刚</div>
+        </div>
+      </div>
+
+      <div class="edit-hint">✎ 粉色气泡为发信人（你）· 灰色气泡为收到的悄悄话和语录，均可点击编辑</div>
+    </section>
+
+    <!-- ==================== 第 4 页：朋友圈 ==================== -->
+    <section class="page" data-page="3" data-title="朋友圈">
+
+      <div class="moments-wrap">
+        <div class="moments-header">
+          <div class="moments-me">
+            <div class="moments-me-avatar" aria-hidden="true">
+              <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="15,22 21,7 30,19" fill="#4a4a4a"/>
+                <polygon points="49,22 43,7 34,19" fill="#4a4a4a"/>
+                <circle cx="32" cy="33" r="17" fill="#5c5c5c"/>
+                <circle cx="25.5" cy="31" r="3.2" fill="#1c1c1e"/>
+                <circle cx="38.5" cy="31" r="3.2" fill="#1c1c1e"/>
+                <circle cx="26.5" cy="30" r="1" fill="#fff"/>
+                <circle cx="39.5" cy="30" r="1" fill="#fff"/>
+                <ellipse cx="32" cy="54" rx="14" ry="7" fill="#5c5c5c"/>
+              </svg>
+            </div>
+            <div class="moments-me-name">k1ty</div>
+          </div>
+        </div>
+
+        <div class="moments-body">
+
+          <div class="moment-item">
+            <div class="moment-avatar" aria-hidden="true">
+              <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="15,22 21,7 30,19" fill="#4a4a4a"/>
+                <polygon points="49,22 43,7 34,19" fill="#4a4a4a"/>
+                <circle cx="32" cy="33" r="17" fill="#5c5c5c"/>
+                <circle cx="25.5" cy="31" r="3.2" fill="#1c1c1e"/>
+                <circle cx="38.5" cy="31" r="3.2" fill="#1c1c1e"/>
+                <circle cx="26.5" cy="30" r="1" fill="#fff"/>
+                <circle cx="39.5" cy="30" r="1" fill="#fff"/>
+                <ellipse cx="32" cy="54" rx="14" ry="7" fill="#5c5c5c"/>
+              </svg>
+            </div>
+            <div class="moment-main">
+              <div class="moment-name" contenteditable="true">k1ty</div>
+              <div class="moment-text" contenteditable="true" data-placeholder="点击编辑正文...">主旋律：白话日常挑逗恶趣味热脸钱。社畜淡淡人机，我一定要上班吗？发现说话的时候把眼睛闭上很舒服。</div>
+              <div class="moment-meta">
+                <span contenteditable="true">刚刚</span>
+                <div class="moment-actions">
+                  <span class="moment-action" data-like>♡ 赞</span>
+                  <span class="moment-action">💬 评论</span>
+                </div>
+              </div>
+              <div class="moment-comments">
+                <div class="moment-comment-row">
+                  <span class="moment-comment-name">雾辞：</span>
+                  <span class="moment-comment-text" contenteditable="true">副旋律是轻浮做擦对抗路 deeptalk 吗</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="moment-item">
+            <div class="moment-avatar" aria-hidden="true">
+              <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="15,22 21,7 30,19" fill="#4a4a4a"/>
+                <polygon points="49,22 43,7 34,19" fill="#4a4a4a"/>
+                <circle cx="32" cy="33" r="17" fill="#5c5c5c"/>
+                <circle cx="25.5" cy="31" r="3.2" fill="#1c1c1e"/>
+                <circle cx="38.5" cy="31" r="3.2" fill="#1c1c1e"/>
+                <circle cx="26.5" cy="30" r="1" fill="#fff"/>
+                <circle cx="39.5" cy="30" r="1" fill="#fff"/>
+                <ellipse cx="32" cy="54" rx="14" ry="7" fill="#5c5c5c"/>
+              </svg>
+            </div>
+            <div class="moment-main">
+              <div class="moment-name" contenteditable="true">k1ty</div>
+              <div class="moment-text" contenteditable="true" data-placeholder="点击编辑正文...">想做的事：只想和你做。偶尔掉落特别旋律，也算是一种浪漫。</div>
+              <div class="moment-meta">
+                <span contenteditable="true">1 小时前</span>
+                <div class="moment-actions">
+                  <span class="moment-action" data-like>♡ 赞</span>
+                  <span class="moment-action">💬 评论</span>
+                </div>
+              </div>
+              <div class="moment-comments">
+                <div class="moment-comment-row">
+                  <span class="moment-comment-name">十厄：</span>
+                  <span class="moment-comment-text" contenteditable="true">期待见面</span>
+                </div>
+                <div class="moment-comment-row">
+                  <span class="moment-comment-name">k1ty：</span>
+                  <span class="moment-comment-text" contenteditable="true">520.1314_好</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="moment-item">
+            <div class="moment-avatar" aria-hidden="true">
+              <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="15,22 21,7 30,19" fill="#4a4a4a"/>
+                <polygon points="49,22 43,7 34,19" fill="#4a4a4a"/>
+                <circle cx="32" cy="33" r="17" fill="#5c5c5c"/>
+                <circle cx="25.5" cy="31" r="3.2" fill="#1c1c1e"/>
+                <circle cx="38.5" cy="31" r="3.2" fill="#1c1c1e"/>
+                <circle cx="26.5" cy="30" r="1" fill="#fff"/>
+                <circle cx="39.5" cy="30" r="1" fill="#fff"/>
+                <ellipse cx="32" cy="54" rx="14" ry="7" fill="#5c5c5c"/>
+              </svg>
+            </div>
+            <div class="moment-main">
+              <div class="moment-name" contenteditable="true">k1ty</div>
+              <div class="moment-text" contenteditable="true" data-placeholder="点击编辑正文...">感恩自己，鸣谢自己，成功句引到很好很好的你。</div>
+              <div class="moment-meta">
+                <span contenteditable="true">昨天</span>
+                <div class="moment-actions">
+                  <span class="moment-action" data-like>♡ 赞</span>
+                  <span class="moment-action">💬 评论</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="moment-item">
+            <div class="moment-avatar" aria-hidden="true">
+              <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="15,22 21,7 30,19" fill="#4a4a4a"/>
+                <polygon points="49,22 43,7 34,19" fill="#4a4a4a"/>
+                <circle cx="32" cy="33" r="17" fill="#5c5c5c"/>
+                <circle cx="25.5" cy="31" r="3.2" fill="#1c1c1e"/>
+                <circle cx="38.5" cy="31" r="3.2" fill="#1c1c1e"/>
+                <circle cx="26.5" cy="30" r="1" fill="#fff"/>
+                <circle cx="39.5" cy="30" r="1" fill="#fff"/>
+                <ellipse cx="32" cy="54" rx="14" ry="7" fill="#5c5c5c"/>
+              </svg>
+            </div>
+            <div class="moment-main">
+              <div class="moment-name" contenteditable="true">k1ty</div>
+              <div class="moment-text" contenteditable="true" data-placeholder="点击编辑正文...">点击此处可以自由编辑朋友圈内容...</div>
+              <div class="moment-meta">
+                <span contenteditable="true">编辑时间</span>
+                <div class="moment-actions">
+                  <span class="moment-action" data-like>♡ 赞</span>
+                  <span class="moment-action">💬 评论</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="edit-hint">✎ 点击头像旁的名字、正文、时间和评论均可编辑 · 点击「♡ 赞」有反馈</div>
+    </section>
+
+  </main>
+
+  <!-- 底部导航 -->
+  <nav class="tabbar" id="tabbar">
+    <button class="tab active" data-target="0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 10.5 12 3l9 7.5"/>
+        <path d="M5 9.5V20a1 1 0 0 0 1 1h3v-6h6v6h3a1 1 0 0 0 1-1V9.5"/>
+      </svg>
+      <span class="tab-label">主页</span>
+    </button>
+    <button class="tab" data-target="1">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 11l3 3L22 4"/>
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+      </svg>
+      <span class="tab-label">提醒</span>
+    </button>
+    <button class="tab" data-target="2">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+      </svg>
+      <span class="tab-label">消息</span>
+      <span class="tab-badge"></span>
+    </button>
+    <button class="tab" data-target="3">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 8v8M8 12h8"/>
+      </svg>
+      <span class="tab-label">朋友圈</span>
+    </button>
+  </nav>
+
+</div>
+
+<!-- ============================================================
+     音乐文件位置 ↓↓↓
+     将你的音乐文件命名为 music.mp3 并与本 html 放在同一目录，
+     或者点击页面内「上传本地音乐」按钮选择文件。
+     也可以直接修改下面 audio 的 src 为你的音乐地址。
+     ============================================================ -->
+<audio id="bgm" src="music.mp3" loop preload="none"></audio>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ============ 分页切换 ============ */
+  var pages = document.querySelectorAll(".page");
+  var tabs = document.querySelectorAll(".tab");
+  var viewport = document.getElementById("viewport");
+  var curPageEl = document.getElementById("curPage");
+  var pageTitleEl = document.getElementById("pageTitle");
+  var total = pages.length;
+  var current = 0;
+
+  function goTo(index) {
+    if (index < 0 || index > total - 1) return;
+    if (index === current) return;
+
+    pages[current].classList.remove("active");
+    tabs[current].classList.remove("active");
+
+    current = index;
+
+    pages[current].classList.add("active");
+    tabs[current].classList.add("active");
+
+    curPageEl.textContent = current + 1;
+    pageTitleEl.textContent = pages[current].dataset.title || "";
+
+    viewport.scrollTop = 0;
+  }
+
+  tabs.forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      goTo(parseInt(tab.dataset.target, 10));
+    });
+  });
+
+  document.getElementById("closeBtn").addEventListener("click", function () {
+    goTo(0);
+  });
+
+  /* 左右滑动切换 */
+  var touchStartX = 0;
+  var touchStartY = 0;
+  var touchMoved = false;
+
+  viewport.addEventListener("touchstart", function (e) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchMoved = false;
+  }, { passive: true });
+
+  viewport.addEventListener("touchmove", function () {
+    touchMoved = true;
+  }, { passive: true });
+
+  viewport.addEventListener("touchend", function (e) {
+    if (!touchMoved) return;
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    var dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      if (dx < 0) goTo(current + 1);
+      else goTo(current - 1);
+    }
+  }, { passive: true });
+
+  /* ============ Plan 勾选 ============ */
+  document.querySelectorAll("[data-plan]").forEach(function (item) {
+    item.addEventListener("click", function (e) {
+      if (e.target.isContentEditable) return;
+      item.classList.toggle("done");
+    });
+  });
+
+  /* ============ 朋友圈点赞 ============ */
+  document.querySelectorAll("[data-like]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      btn.classList.toggle("liked");
+      var liked = btn.classList.contains("liked");
+      btn.textContent = liked ? "♥ 已赞" : "♡ 赞";
+    });
+  });
+
+  /* ============ 音乐播放 ============ */
+  var audio = document.getElementById("bgm");
+  var playBtn = document.getElementById("playBtn");
+  var record = document.getElementById("record");
+  var musicFill = document.getElementById("musicFill");
+  var musicSub = document.getElementById("musicSub");
+  var musicFile = document.getElementById("musicFile");
+  var isPlaying = false;
+
+  audio.volume = 0.4;
+
+  function updateSub() {
+    if (!audio.src) {
+      musicSub.textContent = "未加载音频 · 请上传或放置 music.mp3";
+      return;
+    }
+    if (isPlaying) {
+      musicSub.textContent = "正在播放 · " + formatTime(audio.currentTime);
+    } else {
+      musicSub.textContent = "已暂停 · " + formatTime(audio.currentTime);
+    }
+  }
+
+  function formatTime(sec) {
+    if (!sec || isNaN(sec)) return "00:00";
+    var m = Math.floor(sec / 60);
+    var s = Math.floor(sec % 60);
+    return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+  }
+
+  function setPlaying(state) {
+    isPlaying = state;
+    playBtn.textContent = state ? "⏸" : "▶";
+    playBtn.setAttribute("aria-label", state ? "暂停" : "播放");
+    record.classList.toggle("playing", state);
+    updateSub();
+  }
+
+  playBtn.addEventListener("click", function () {
+    if (!audio.src) {
+      musicFile.click();
+      return;
+    }
+    if (audio.paused) {
+      audio.play().then(function () {
+        setPlaying(true);
+      }).catch(function () {
+        setPlaying(false);
+      });
+    } else {
+      audio.pause();
+    }
+  });
+
+  audio.addEventListener("play", function () { setPlaying(true); });
+  audio.addEventListener("pause", function () { setPlaying(false); });
+  audio.addEventListener("timeupdate", function () {
+    if (audio.duration) {
+      var pct = (audio.currentTime / audio.duration) * 100;
+      musicFill.style.width = pct + "%";
+    }
+    updateSub();
+  });
+  audio.addEventListener("loadedmetadata", updateSub);
+  audio.addEventListener("error", function () {
+    musicSub.textContent = "未加载音频 · 请上传或放置 music.mp3";
+  });
+
+  /* 上传本地音乐 */
+  musicFile.addEventListener("change", function () {
+    var file = musicFile.files && musicFile.files[0];
+    if (!file) return;
+    var url = URL.createObjectURL(file);
+    audio.src = url;
+    audio.load();
+    audio.play().then(function () {
+      setPlaying(true);
+    }).catch(function () {
+      setPlaying(false);
+    });
+  });
+
+  updateSub();
+
+})();
+</script>
+
+</body>
+</html>
